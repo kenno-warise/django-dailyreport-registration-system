@@ -1,1 +1,1 @@
-# django-dailyreport-registration-system
+# DjangoフレームワークによるWeb日報登録システム（未完成）
