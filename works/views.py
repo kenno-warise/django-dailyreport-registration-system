@@ -4,20 +4,21 @@ from django.shortcuts import render, redirect
 
 from .forms import LoginForm
 
-"""
+
 class Login(LoginView):
-    ログイン画面
+    """ログイン画面"""
     form_class = LoginForm
     template_name = "works/login.html"
-"""
+    redirect_authenticated_user = True # ログイン状態で/login/にアクセスされた時にリダイレクト先へ飛ばす
 
+"""
 def login(request):
-    """
+    
     タスク↓↓
     入力値を取得、入力値をチェック 〇
     データベースに照合
     セッションに保存、HOME画面へ遷移
-    """
+    
     if request.POST:
         print()
         print(request.POST)
@@ -26,16 +27,15 @@ def login(request):
         # if request.user.is_authennticated:
         if user_no and password:
             return redirect('works:index')
-        else:
-            context = {
                     'user_no': user_no,
                     'password': password,
             }
             return render(request, 'works/login.html', context)
     return render(request, 'works/login.html')
+"""
 
-# ログインリダイレクト先の設定をする
-# @login_required(login_url='/login/')
+
+@login_required(login_url='/login/')
 def index(request):
     return render(request, 'works/index.html')
 

@@ -126,6 +126,10 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# カスタムユーザーモデル
+
+AUTH_USER_MODEL = 'works.User'
+
 # ログインに関する変数
 
-# LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = 'works:index'
