@@ -133,3 +133,4 @@ AUTH_USER_MODEL = 'works.User'
 # ログインに関する変数
 
 LOGIN_REDIRECT_URL = 'works:index'
+LOGOUT_REDIRECT_URL = "works:login"

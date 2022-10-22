@@ -26,22 +26,12 @@
     <form class="border rounded bg-white form-login" method="post" action="{% url 'works:login' %}">{% csrf_token %}
       <h1 class="h3 my-3">Login</h1>
       <div class="mb-3 pt-3">
-
 	{{ form.username }}
 	{{ form.username.errors.0 }}
-	<!--
-   <input name="user_no" type="number" class="form-control rounded-pill" placeholder="社員番号">
-   { if not user_no %} <p class="text-danger">番号を入力してください</p>{ endif %}
-	-->
       </div>
       <div class="mb-3">
-
 	{{ form.password }}
 	{{ form.password.errors.0 }}
-	<!--
-   <input name="password" type="password" class="form-control rounded-pill" placeholder="パスワード">
-   { if not password %} <p class="text-danger">パスワードを入力してください</p>{ endif %}
-	-->
       </div>
       <button type="submit" class="btn btn-primary text-white rounded-pill px-5 my-4">ログイン</button>
       <input type="hidden" name="next" value="{{ next }}">
