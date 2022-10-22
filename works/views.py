@@ -1,5 +1,5 @@
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.views import LoginView
+from django.contrib.auth.views import LoginView, LogoutView
 from django.shortcuts import render, redirect
 
 from .forms import LoginForm
@@ -11,44 +11,28 @@ class Login(LoginView):
     template_name = "works/login.html"
     redirect_authenticated_user = True # ログイン状態で/login/にアクセスされた時にリダイレクト先へ飛ばす
 
-"""
-def login(request):
-    
-    タスク↓↓
-    入力値を取得、入力値をチェック 〇
-    データベースに照合
-    セッションに保存、HOME画面へ遷移
-    
-    if request.POST:
-        print()
-        print(request.POST)
-        user_no = request.POST['user_no']
-        password = request.POST['password']
-        # if request.user.is_authennticated:
-        if user_no and password:
-            return redirect('works:index')
-                    'user_no': user_no,
-                    'password': password,
-            }
-            return render(request, 'works/login.html', context)
-    return render(request, 'works/login.html')
-"""
+
+class Logout(LogoutView):
+    """ログアウト"""
 
 
-@login_required(login_url='/login/')
 def index(request):
+    """日報登録＆月別リスト画面"""
     return render(request, 'works/index.html')
 
 
 def admin_login(request):
+    """管理者ログイン画面"""
     return render(request, 'works/admin_login.html')
 
 
 def user_list(request):
+    """社員一覧"""
     return render(request, 'works/user_list.html')
 
 
 def user_result(request):
+    """日報登録＆月別リスト"""
     return render(request, 'works/user_result.html')
 
 # Create your views here.
