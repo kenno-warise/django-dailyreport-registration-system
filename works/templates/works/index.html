@@ -26,6 +26,7 @@
       <i class="md-4 bi bi-person-workspace" alt="WoRKS"></i>
     </div>
 
+    {% if user %}
     <form class="border rounded bg-white form-time-table" action="{% url 'works:index' %}">
       <h1 class="h3 my-3">月別リスト</h1>
 
@@ -44,6 +45,14 @@
 	  </tr>
 	</thead>
 	<tbody>
+	  <tr>
+	    <th scope="row">1(水)</th>
+	    <td>09:00</td>
+	    <td>18:00</td>
+	    <td>01:00</td>
+	    <td>テストテストテスト...</td>
+	    <td><i class="fa-solid fa-pencil"></i></td>
+	  </tr>
 	  <tr>
 	    <th scope="row">1(水)</th>
 	    <td>09:00</td>
@@ -105,6 +114,9 @@
 	</div>
       </div>
     </div>
+    {% else %}
+    <h1>現在あなたの日報情報はありません。</h1>
+    {% endif %}
     
     <!-- Optional JavaScript; choose one of the two! -->
 

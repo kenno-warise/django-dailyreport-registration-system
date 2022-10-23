@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
-from .models import User
+from .models import User, Work
 
 
 class UserAdmin(BaseUserAdmin):
@@ -33,6 +33,15 @@ class UserAdmin(BaseUserAdmin):
         ),
     )
 
-admin.site.register(User, UserAdmin)
 
+class WorkAdmin(admin.ModelAdmin):
+    list_display = (
+            "user_id",
+            "date",
+    )
+    search_fields = ["user_id"]
+
+
+admin.site.register(User, UserAdmin)
+admin.site.register(Work, WorkAdmin)
 # Register your models here.
