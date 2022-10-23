@@ -45,14 +45,16 @@
 	  </tr>
 	</thead>
 	<tbody>
+	  {% for user_work in user_works %}
 	  <tr>
-	    <th scope="row">1(水)</th>
-	    <td>09:00</td>
-	    <td>18:00</td>
-	    <td>01:00</td>
-	    <td>テストテストテスト...</td>
+	    <th scope="row">{{ user_work.date | date:"j (l)" | cut:"曜日" }}</th>
+	    <td>{{ user_work.start_time | default:" "}}</td>
+	    <td>{{ user_work.end_time | default:" " }}</td>
+	    <td>{{ user_work.break_time | default:" " }}</td>
+	    <td>{{ user_work.comment | truncatechars:"40" }}</td> <!-- 文字数を40字で切り詰め -->
 	    <td><i class="fa-solid fa-pencil"></i></td>
 	  </tr>
+	  {% endfor %}
 	  <tr>
 	    <th scope="row">1(水)</th>
 	    <td>09:00</td>

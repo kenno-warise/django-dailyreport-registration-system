@@ -94,10 +94,10 @@ class Work(models.Model):
     # models.PROTECTによって関連付けられているUserが削除されてもその関連先オブジェクトが存在する限り削除されない
     user_id = models.ForeignKey(User, verbose_name='社員ID', on_delete=models.PROTECT)
     date = models.DateField(verbose_name='日付')
-    start_time = models.TimeField(verbose_name='出勤時間')
-    end_time = models.TimeField(verbose_name='退勤時間')
-    break_time = models.TimeField(verbose_name='休憩時間')
-    comment = models.TextField(verbose_name='業務内容')
+    start_time = models.TimeField(verbose_name='出勤時間', null=True, blank=True)
+    end_time = models.TimeField(verbose_name='退勤時間', null=True, blank=True)
+    break_time = models.TimeField(verbose_name='休憩時間', null=True, blank=True)
+    comment = models.TextField(verbose_name='業務内容', null=True, blank=True)
 
     def __str__(self):
         return str(self.date)
