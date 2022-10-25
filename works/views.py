@@ -49,19 +49,17 @@ def index(request):
     else:
         user_works = None
     if request.method == "POST":
-        print()
-        print(request.POST)
-        modal_form = WorkForm(request.POST, instance=work)
+        post_data = request.POST
+        # 新たにPOSTされたデータを使用して更新用データを取得
+        edit_work = get_object_or_404(
+                Work,
+                user_id=post_data['user_id'],
+                date=post_data['date']
+        )
+        modal_form = WorkForm(request.POST, instance=edit_work)
         if modal_form.is_valid():
             modal_form.save()
-            print('OK')
             return redirect('works:index')
-        else:
-            print('NO')
-            for field in modal_form:
-                print(field.name)
-                print(field.errors)
-                print()
     context = {
             'user_works': user_works,
             'form': form,
