@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 
-from .forms import LoginForm, EveryMonthForm
+from .forms import LoginForm, WorkForm, EveryMonthForm
 from .models import Work
 
 
@@ -22,8 +22,20 @@ class Logout(LogoutView):
 
 @login_required(login_url='/login/')
 def index(request):
-    """日報登録＆月別リスト画面"""
+    """
+    日報登録＆月別リスト画面
+    タスク：
+    ・モーダルの自動表示
+    ・当日の日付を自動表示
+    ・打刻ボタンの実装
+    ・休憩時間のデフォルト表示
+    ・データベースに登録
+    """
+
     form = EveryMonthForm()
+    work = get_object_or_404(Work, user_id=request.user.id, date=timezone.now().date().strftime("%Y-%m-%d"))
+    # work = Work.objects.filter(user_id=request.user.id, date=timezone.now().date().strftime("%Y-%m-%d"))
+    modal_form = WorkForm(instance=work)
     if request.user.id:
         # lastday変数に月末日の生成
         _, lastday = calendar.monthrange(timezone.now().year, timezone.now().month)
@@ -36,9 +48,25 @@ def index(request):
         )
     else:
         user_works = None
+    if request.method == "POST":
+        print()
+        print(request.POST)
+        modal_form = WorkForm(request.POST, instance=work)
+        if modal_form.is_valid():
+            modal_form.save()
+            print('OK')
+            return redirect('works:index')
+        else:
+            print('NO')
+            for field in modal_form:
+                print(field.name)
+                print(field.errors)
+                print()
     context = {
             'user_works': user_works,
             'form': form,
+            'modal_form': modal_form,
+            'work': work,
     }
     return render(request, 'works/index.html', context)
 
@@ -94,10 +122,14 @@ def pulldown_access(request):
             query["break_time"] = query["break_time"].strftime("%H:%M")
         else:
             query["break_time"] = ''
-        if len(query["comment"]) >= 40:
-            query["comment"] = query["comment"][:40] + '...'
+        if query["comment"]:
+            if len(query["comment"]) >= 40:
+                query["comment"] = query["comment"][:40] + '...'
+            else:
+                pass
         else:
-            pass
+            query["comment"] = ''
+
     return JsonResponse({"query_list": query_list})
 
 

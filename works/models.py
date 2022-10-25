@@ -96,7 +96,7 @@ class Work(models.Model):
     date = models.DateField(verbose_name='日付')
     start_time = models.TimeField(verbose_name='出勤時間', null=True, blank=True)
     end_time = models.TimeField(verbose_name='退勤時間', null=True, blank=True)
-    break_time = models.TimeField(verbose_name='休憩時間', null=True, blank=True)
+    break_time = models.TimeField(verbose_name='休憩時間', default='01:00:00', null=True, blank=True)
     comment = models.TextField(verbose_name='業務内容', null=True, blank=True)
 
     def __str__(self):
