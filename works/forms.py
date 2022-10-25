@@ -18,6 +18,51 @@ class LoginForm(AuthenticationForm):
         self.fields["password"].widget.attrs["placeholder"] = "パスワード"
 
 
+class WorkForm(forms.ModelForm):
+    """モーダル用のフォーム"""
+    class Meta:
+        model = Work
+        fields = (
+                'user_id',
+                'date',
+                'start_time',
+                'end_time',
+                'break_time',
+                'comment',
+        )
+        widgets = {
+                "start_time": forms.TextInput(
+                    attrs={
+                        "class": "form-control",
+                        "placeholder": "出勤",
+                        "id": "modal_start_time",
+                        "name": "modal_start_time",
+                    }
+                ),
+                "end_time": forms.TextInput(
+                    attrs={
+                        "class": "form-control",
+                        "placeholder": "退勤",
+                        "id": "modal_end_time",
+                        "name": "modal_end_time",
+                    }
+                ),
+                "break_time": forms.TextInput(
+                    attrs={
+                        "class": "form-control",
+                        "placeholder": "休憩",
+                    }
+                ),
+                "comment": forms.Textarea(
+                    attrs={
+                        "class": "form-control",
+                        "placeholder": "業務内容",
+                        "row": "5",
+                    }
+                )
+        }
+
+
 class EveryMonthForm(forms.Form):
     """
     月別リストのプルダウン用フォーム

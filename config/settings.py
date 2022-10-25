@@ -113,7 +113,8 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+# Falseにすることでdjango.utils.timezoneが日本時間に設定される
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
