@@ -20,6 +20,7 @@ class LoginForm(AuthenticationForm):
 
 class WorkForm(forms.ModelForm):
     """モーダル用のフォーム"""
+
     class Meta:
         model = Work
         fields = (
@@ -31,6 +32,18 @@ class WorkForm(forms.ModelForm):
                 'comment',
         )
         widgets = {
+                "user_id": forms.NumberInput(
+                    attrs={
+                        "id": "modal_user_id",
+                        "name": "modal_user_id",
+                    }
+                ),
+                "date": forms.TextInput(
+                    attrs={
+                        "id": "modal_date",
+                        "name": "modal_date",
+                    }
+                ),
                 "start_time": forms.TextInput(
                     attrs={
                         "class": "form-control",
@@ -51,12 +64,16 @@ class WorkForm(forms.ModelForm):
                     attrs={
                         "class": "form-control",
                         "placeholder": "休憩",
+                        "id": "modal_break_time",
+                        "name": "modal_break_time",
                     }
                 ),
                 "comment": forms.Textarea(
                     attrs={
                         "class": "form-control",
                         "placeholder": "業務内容",
+                        "id": "modal_comment",
+                        "name": "modal_comment",
                         "row": "5",
                     }
                 )
