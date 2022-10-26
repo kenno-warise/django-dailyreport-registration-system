@@ -22,14 +22,14 @@ class UserAdmin(BaseUserAdmin):
     search_fields = ('user_no',)
 
     fieldsets = (
-        (None, {'fields': ('user_no', 'password')}),
+        (None, {'fields': ('user_no', 'username', 'password')}),
         ('Permissions', {'fields': ('staff','admin',)}),
     )
 
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('user_no', 'password1', 'password2')}
+            'fields': ('user_no', 'username', 'password1', 'password2')}
         ),
     )
 
