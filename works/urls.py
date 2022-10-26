@@ -11,5 +11,5 @@ urlpatterns = [
         path('pulldown_access/', views.pulldown_access, name='pulldown-access'),
         path('admin-login/', views.AdminLogin.as_view(), name='admin-login'),
         path('admin-login/user-list/', views.user_list, name='user-list'),
-        path('user-result/<int:id>', views.user_result, name='user-result'),
+        path('user-result/<int:user_id>/', views.user_result, name='user-result'),
 ]
