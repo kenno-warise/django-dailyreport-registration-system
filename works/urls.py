@@ -8,8 +8,8 @@ urlpatterns = [
         path('login/', views.Login.as_view(), name='login'),
         path("logout/", views.Logout.as_view(), name="logout"),
         path('index/', views.index, name='index'),
-        path('pulldown_access/', views.pulldown_access, name='pulldown_access'),
-        path('admin-login/', views.admin_login, name='admin-login'),
-        path('user-list/', views.user_list, name='user-list'),
+        path('pulldown_access/', views.pulldown_access, name='pulldown-access'),
+        path('admin-login/', views.AdminLogin.as_view(), name='admin-login'),
+        path('admin-login/user-list/', views.user_list, name='user-list'),
         path('user-result/', views.user_result, name='user-result'),
 ]
