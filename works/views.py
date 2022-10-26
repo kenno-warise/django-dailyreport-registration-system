@@ -195,9 +195,11 @@ def user_result(request, user_id):
     """日報登録＆月別リスト"""
     form = EveryMonthForm()
     work = get_object_or_404(Work, user_id=user_id, date=timezone.now().date().strftime("%Y-%m-%d"))
+    print(work.id)
     # work = Work.objects.filter(user_id=request.user.id, date=timezone.now().date().strftime("%Y-%m-%d"))
     modal_form = WorkForm(instance=work)
     if request.user.id:
+        # リスト表示用のデータ生成
         # lastday変数に月末日の生成
         _, lastday = calendar.monthrange(timezone.now().year, timezone.now().month)
         # 過去から今月末までのデータを取得且つ、今月のみのデータを取得（社員IDを持っている人のみ）
@@ -205,7 +207,7 @@ def user_result(request, user_id):
                 date__lte=timezone.now().date().replace(day=lastday),
                 date__year=form.dates[0][0].split('/')[0],
                 date__month=form.dates[0][0].split('/')[1],
-                user_id=request.user.id
+                user_id=user_id
         )
     else:
         user_works = None
@@ -214,7 +216,7 @@ def user_result(request, user_id):
         # 新たにPOSTされたデータを使用して更新用データを取得
         edit_work = get_object_or_404(
                 Work,
-                user_id=post_data['user_id'],
+                user_id=user_id,
                 date=post_data['date']
         )
         modal_form = WorkForm(request.POST, instance=edit_work)
