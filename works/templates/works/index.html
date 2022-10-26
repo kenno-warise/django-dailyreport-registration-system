@@ -143,42 +143,7 @@
     <script src="{% static 'js/select.js' %}" type="text/javascript"></script>
 
     <script>
-      // 各日報データの編集ボタン用の処理
-      /*$('#exampleModal').on('show.bs.modal', function(event) {
-	var button = $(event.relatedTarget)
-	var target_day = button.data('day')
-        
-	var day = button.closest('tr').children('td')[0].innerText;
-        console.log(day);
-	$('#modal_day').text(target_day)
-      })
-      */
       {% if work.start_time and work.end_time %}
-      // 各日報データの編集ボタン用の処理
-      $('#exampleModal').on('show.bs.modal', function(event) {
-	var button = $(event.relatedTarget)
-	var target_day = button.data('day')
-      
-	// 編集ボタンが押されたら対処データを取得し代入する処理
-        var day = button.closest('tr').children('th')[0].innerText
-	var start_time = button.closest('tr').children('td')[0].innerText
-	var end_time = button.closest('tr').children('td')[1].innerText
-	var break_time = button.closest('tr').children('td')[2].innerText
-	var comment = button.closest('tr').children('td')[3].innerText
-	var user_id = button.closest('tr').children('td')[5].innerText
-	var target_day = button.closest('tr').children('td')[6].innerText
-	//var work_id = button.closest('tr').children('td')[7].innerText
-        
-	// 取得したデータをモーダルの各欄に設定
-	$('#modal_day').text(target_day)
-	$('#modal_start_time').val(start_time)
-	$('#modal_end_time').val(end_time)
-	$('#modal_break_time').val(break_time)
-	$('#modal_comment').val(comment)
-	$('#modal_user_id').val(user_id)
-	$('#modal_date').val(target_day)
-	//$('#modal_id').val(work_id)
-      })
       {% else %}
       // モーダルが自動表示するように設定
       /*jQuery(document).ready(function(){

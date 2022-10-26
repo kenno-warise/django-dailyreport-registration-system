@@ -17,6 +17,15 @@ class LoginForm(AuthenticationForm):
         self.fields["password"].widget.attrs["class"] = "form-control rounded-pill"
         self.fields["password"].widget.attrs["placeholder"] = "パスワード"
 
+    class Meta:
+        error_messages = {
+            "username": {
+                "required": "お名前を入力してください",
+            },
+            "password": {
+                "required": "認証に失敗しました",
+            },
+        }
 
 class WorkForm(forms.ModelForm):
     """モーダル用のフォーム"""

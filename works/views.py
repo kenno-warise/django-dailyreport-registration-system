@@ -1,5 +1,6 @@
 import calendar # 月末取得用
 
+from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView, LogoutView
 from django.http import JsonResponse
@@ -7,7 +8,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 
 from .forms import LoginForm, WorkForm, EveryMonthForm
-from .models import Work
+from .models import Work, User
 
 
 class Login(LoginView):
@@ -24,14 +25,9 @@ class Logout(LogoutView):
 def index(request):
     """
     日報登録＆月別リスト画面
-    タスク：
-    ・モーダルの自動表示
-    ・当日の日付を自動表示
-    ・打刻ボタンの実装
-    ・休憩時間のデフォルト表示
-    ・データベースに登録
     """
-
+    # if request.user.admin: # 管理者がアクセスした場合は「user-list」にリダイレクトする
+    #     return redirect('works:user-list')
     form = EveryMonthForm()
     work = get_object_or_404(Work, user_id=request.user.id, date=timezone.now().date().strftime("%Y-%m-%d"))
     # work = Work.objects.filter(user_id=request.user.id, date=timezone.now().date().strftime("%Y-%m-%d"))
@@ -131,13 +127,63 @@ def pulldown_access(request):
     return JsonResponse({"query_list": query_list})
 
 
-def admin_login(request):
+class AdminLogin(LoginView):
     """管理者ログイン画面"""
-    return render(request, 'works/admin_login.html')
+    form_class = LoginForm
+    template_name = "works/admin_login.html"
+    redirect_authenticated_user = True # ログイン状態で/admin-login/にアクセスされた時にリダイレクト先へ飛ばす
+    redirect_field_name = 'user-list' # リダイレクトり先が「/admin-login/user-list/」となる
+
+    def form_invalid(self, form):
+        """検証失敗後の処理"""
+        # 各フィールドのclass属性にis-invalid（失敗）もしくわis-valid（クリア）を追記する
+        auth_result = authenticate(username=form.data['username'], password=form.data['password'])
+        # 管理者かどうかのブール値を出力するための変数
+        user = User.objects.filter(user_no=form.data['username']).values_list('admin')
+        for field in form:
+            if field.errors:
+                # フォームが未入力のフィールド
+                # 入力されていないフィールドはclass属性にis-invalidを追記する
+                form[field.name].field.widget.attrs["class"] += " is-invalid"
+            elif auth_result is None:
+                # 認証に失敗したらinvalid
+                form[field.name].field.widget.attrs["class"] += " is-invalid"
+            elif user.get()[0] is False:
+                # 管理者でなければinvalid
+                form[field.name].field.widget.attrs["class"] += " is-invalid"
+        
+        return self.render_to_response(self.get_context_data(form=form))
+    
+    def get_redirect_url(self):
+        """
+        フォームの認証、検証共に成功した後の処理
+        リダイレクト先の戻り値指定
+        """
+        redirect_to = self.redirect_field_name
+        return redirect_to
+    
+    def post(self, request, *args, **kwargs):
+        """
+        POSTパラメータを押された際の処理
+        管理者でなければ無効にする
+        """
+        form = self.get_form()
+        auth_result = authenticate(username=form.data['username'], password=form.data['password'])
+        user = User.objects.filter(user_no=form.data['username']).values_list('admin')
+        if auth_result: # 認証されれば成功
+            if user.get()[0]: # 管理者かどうか
+                if form.is_valid(): # フォームデータの検証
+                    return self.form_valid(form)
+                else:
+                    return self.form_invalid(form)
+        return self.form_invalid(form)
 
 
+@login_required(login_url='/admin-login/')
 def user_list(request):
     """社員一覧"""
+    if request.user.admin is False:
+        return redirect('works:index')
     return render(request, 'works/user_list.html')
 
 

@@ -24,7 +24,7 @@ dateValue.addEventListener('change', (event) => {
   // セレクトメニュー内の要素を取得する
   // 非同期処理を記述する
   async function menu_list() {
-    const url = '/pulldown_access/';
+    const url = '/pulldown-access/';
     let res = await fetch(url, {
       method: 'POST',
       headers: {
