@@ -34,13 +34,17 @@
 	  <tr class="bg-light">
 	    <th scope="col">社員番号</th>
 	    <th scope="col">社員名</th>
+	    <th scope="col">権限</th>
 	  </tr>
 	</thead>
 	<tbody>
+	  {% for user in users %}
 	  <tr>
-	    <th scope="row">1</th>
-	    <td><a href="{% url 'works:user-result' %}">ダミー</a></td>
+	    <th scope="row">{{ user.user_no }}</th>
+	    <td><a href="{% url 'works:user-result' user.id %}">{{ user.username }}</a></td>
+	    <td scope="row">{% if user.admin %}管理者{% endif %}</td>
 	  </tr>
+	  {% endfor %}
 	</tbody>
       </table>
     </form>

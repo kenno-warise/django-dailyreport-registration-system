@@ -184,10 +184,14 @@ def user_list(request):
     """社員一覧"""
     if request.user.admin is False:
         return redirect('works:index')
-    return render(request, 'works/user_list.html')
+    users = User.objects.all()
+    context = {
+            'users': users
+    }
+    return render(request, 'works/user_list.html', context)
 
 
-def user_result(request):
+def user_result(request, id):
     """日報登録＆月別リスト"""
     return render(request, 'works/user_result.html')
 
