@@ -26,7 +26,7 @@
       <i class="md-4 bi bi-person-workspace" alt="WoRKS"></i>
     </div>
 
-    {% if user %}
+    {% if user_works %}
     <form class="border rounded bg-white form-time-table" action="{% url 'works:index' %}">
       <h1 class="h3 my-3">月別リスト</h1>
 
@@ -55,7 +55,7 @@
 	    <td>{{ user_work.end_time | default:" " }}</td>
 	    <td>{{ user_work.break_time | default:" " }}</td>
 	    <td>{{ user_work.comment | default:" " | truncatechars:"40" }}</td> <!-- 文字数を40字で切り詰め -->
-	    <td><button type="button" class="btn btn-default h-auto py-0" data-bs-toggle="modal" data-bs-target="#exampleModal" data-day="{{ user_work.date }}"><i class="fa-solid fa-pencil" id="pencil-icon"></i></button></td>
+	    <td id="edit-icon"><button type="button" class="btn btn-default h-auto py-0" data-bs-toggle="modal" data-bs-target="#exampleModal" data-day="{{ user_work.date }}"><i class="fa-solid fa-pencil" id="pencil-icon"></i></button></td>
 	    <td hidden>{{ request.user.id }}</td>
 	    <td hidden>{{ user_work.date | date:"Y-m-d" }}</td>
 	    <td hidden>{{ user_work.id }}</td>
@@ -138,7 +138,7 @@
 
     <!-- jQuery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-
+    
     <!-- Original JavaScript -->
     <script src="{% static 'js/select.js' %}" type="text/javascript"></script>
 
@@ -172,9 +172,8 @@
       // 各日報データの編集ボタン用の処理
       $('#exampleModal').on('show.bs.modal', function(event) {
 	var button = $(event.relatedTarget)
-	var target_day = button.data('day')
-        
-	// 編集ボタンが押されたら対処データを取得し代入する処理
+ 	//var target_day = button.data('day')
+	// 編集ボタンが押されたら対処データ（<table>内の要素）を取得し代入する処理
         var day = button.closest('tr').children('th')[0].innerText
         var start_time = button.closest('tr').children('td')[0].innerText
 	var end_time = button.closest('tr').children('td')[1].innerText
@@ -192,12 +191,9 @@
 	$('#modal_user_id').val(user_id)
 	$('#modal_date').val(target_day)
       })
-
-
-//var inputModal = new bootstrap.Modal(document.getElementById('inputModal'));
-//inputModal.toggle();
     </script>
 
+    
     <!-- Option 2: Separate Popper and Bootstrap JS -->
     <!--
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
