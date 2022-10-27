@@ -158,7 +158,7 @@
 	const now = new Date();
 	const hour = now.getHours().toString().padStart(2, '0');
 	const minute = now.getMinutes().toString().padStart(2, '0');
-	$('#modal_start_time').val(hour+':'+minute+':'+'00');
+	$('#modal_start_time').val(hour+':'+minute);
       })
 
       // 退勤用打刻ボタン処理
@@ -166,7 +166,7 @@
 	const now = new Date();
 	const hour = now.getHours().toString().padStart(2, '0');
 	const minute = now.getMinutes().toString().padStart(2, '0');
-	$('#modal_end_time').val(hour+':'+minute+':'+'00');
+	$('#modal_end_time').val(hour+':'+minute);
       })
 
       // 各日報データの編集ボタン用の処理
