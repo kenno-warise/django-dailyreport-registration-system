@@ -202,10 +202,14 @@ def user_list(request):
 @login_required(login_url='/admin-login/')
 def user_result(request, user_id):
     """日報登録＆月別リスト"""
+    this_month_check = Work.objects.filter(user_id=user_id, date=timezone.now().date())
+    if not this_month_check: # 今月のデータが空だった場合自動で作成する
+        _, lastday = calendar.monthrange(timezone.now().year, timezone.now().month)
+        for i in range(lastday):
+            t = timezone.now().date().replace(day=1) + timezone.timedelta(days=i)
+            Work.objects.create(user_id=User.objects.get(id=user_id), date=t.strftime('%Y-%m-%d'))
+    # プルダウン用のフォーム？
     form = EveryMonthForm()
-    work = get_object_or_404(Work, user_id=user_id, date=timezone.now().date().strftime("%Y-%m-%d"))
-    # work = Work.objects.filter(user_id=request.user.id, date=timezone.now().date().strftime("%Y-%m-%d"))
-    modal_form = WorkForm(instance=work)
     if request.user.id:
         # リスト表示用のデータ生成
         # lastday変数に月末日の生成
@@ -231,6 +235,9 @@ def user_result(request, user_id):
         if modal_form.is_valid():
             modal_form.save()
             return redirect('works:user-result', user_id)
+    
+    work = get_object_or_404(Work, user_id=user_id, date=timezone.now().date().strftime("%Y-%m-%d"))
+    modal_form = WorkForm(instance=work)
     context = {
             'user_works': user_works,
             'form': form,
