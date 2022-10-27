@@ -73,7 +73,7 @@ def pulldown_access(request):
     返り値をJsonResponseで返し、javascriptの規則でデータが処理されるので、
     Djangoのテンプレートフィルタで簡単に出来ることを以下後半の部分で曜日や時間、コメントの制限を
     実装している。
-    コードが汚すぎるしせっかくDjangoを使っているので、テンプレートフィルタが使える方法を今後模索していきたい。
+    コードが汚すぎるしせっかくDjangoを使っているので、テンプレートフィルタが使える方法を今後模索していく。
     """
     # javascriptから送られてきた要素を取得
     select_value = request.POST.get("month_val")
@@ -82,6 +82,7 @@ def pulldown_access(request):
     # 「/」に合わせてsplitする
     select_value = select_value.split("/")
     result_query = Work.objects.order_by("date").filter(
+        user_id=request.user.id, # 社員画面ではログイン中のidを参照
         date__year=select_value[0],
         date__month=select_value[1],
     )
@@ -99,7 +100,7 @@ def pulldown_access(request):
     }
     # デフォルトのフォーマットに合わせるため、各辞書のキーに代入
     for query in query_list:
-        query["date"] = (
+        query["week"] = (
             query["date"].strftime("%d")
             + weeks[query["date"].strftime("%A")]
         )
@@ -107,22 +108,22 @@ def pulldown_access(request):
         if query["start_time"]:
             query["start_time"] = query["start_time"].strftime("%H:%M")
         else:
-            query["start_time"] = ''
+            query["start_time"] = ' '
         if query["end_time"]:
             query["end_time"] = query["end_time"].strftime("%H:%M")
         else:
-            query["end_time"] = ''
+            query["end_time"] = ' '
         if query["break_time"]:
             query["break_time"] = query["break_time"].strftime("%H:%M")
         else:
-            query["break_time"] = ''
+            query["break_time"] = ' '
         if query["comment"]:
             if len(query["comment"]) >= 40:
                 query["comment"] = query["comment"][:40] + '...'
             else:
                 pass
         else:
-            query["comment"] = ''
+            query["comment"] = ' '
 
     return JsonResponse({"query_list": query_list})
 
@@ -191,11 +192,11 @@ def user_list(request):
     return render(request, 'works/user_list.html', context)
 
 
+@login_required(login_url='/admin-login/')
 def user_result(request, user_id):
     """日報登録＆月別リスト"""
     form = EveryMonthForm()
     work = get_object_or_404(Work, user_id=user_id, date=timezone.now().date().strftime("%Y-%m-%d"))
-    print(work.id)
     # work = Work.objects.filter(user_id=request.user.id, date=timezone.now().date().strftime("%Y-%m-%d"))
     modal_form = WorkForm(instance=work)
     if request.user.id:

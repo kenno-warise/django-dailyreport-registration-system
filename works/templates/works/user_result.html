@@ -30,12 +30,13 @@
     <form class="border rounded bg-white form-time-table" action="{% url 'works:index' %}">
       <h1 class="h3 my-3">月別リスト（{{ work.user_id }}）</h1>
 
-      <!--
-      <select class="form-select rounded-pill mb-3" aria-label="Default select example">
-	<option selected>2022 / 10</option>
-      </select>
-      -->
-      {{ form.date_pulldown }}
+      <div class="float-start">
+	{{ form.date_pulldown }}
+      </div>
+      <div class="float-end">
+	<a href="{% url 'works:user-list' %}"><button type="button" class="btn btn-secondary rounded-pill px-5">社員一覧に戻る</button></a>
+      </div>
+
       <table class="table">
 	<thead>
 	  <tr class="bg-light">

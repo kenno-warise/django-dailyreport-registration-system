@@ -35,34 +35,59 @@ dateValue.addEventListener('change', (event) => {
       body: `month_val=${selectedDate}`
     });
     let json = await res.json();
+    // pulldown-accessからWorkインスタンスを取得
     let query_list = json.query_list;
-    let edit_icon = '<i class="fa-solid fa-pencil" id="pencil-icon"></i>'
+    // 既存の<table>を取得
     let table_body = document.getElementById('table-body');
+    // <table>内の要素を空にする
     table_body.innerHTML = '';
-    {{ query_list }}
     for (let query of query_list) {
+      // <tr>を作成
       let tr_block = document.createElement('tr');
-      let td_block_1 = document.createElement('td');
+      // <th>を作成
+      let td_block_1 = document.createElement('th');
+      // <td>を作成
       let td_block_2 = document.createElement('td');
       let td_block_3 = document.createElement('td');
       let td_block_4 = document.createElement('td');
       let td_block_5 = document.createElement('td');
       let td_block_6 = document.createElement('td');
-      td_block_1.innerHTML = `${ query.date }`;
+      let td_block_7 = document.createElement('td');
+      let td_block_8 = document.createElement('td');
+      let td_block_9 = document.createElement('td');
+      // <th>内に日付要素を代入
+      td_block_1.innerHTML = `${ query.week }`;
+      // <td>内に出勤時間を代入
       td_block_2.innerHTML = `${query.start_time}`;
       td_block_3.innerHTML = `${query.end_time}`;
       td_block_4.innerHTML = `${query.break_time}`;
       td_block_5.innerHTML = `${query.comment}`;
-      td_block_6.innerHTML = `${edit_icon}`;
+      //let get_data_day = edit_icon.setAttribute('data-day', `${query.date}`);
+      td_block_6.innerHTML = `<button type="button" class="btn btn-default h-auto py-0" data-bs-toggle="modal" data-bs-target="#exampleModal" data-day=${query.date}><i class="fa-solid fa-pencil" id="pencil-icon"></i></button>`;
+      // ユーザーID用の<td>にhidden属性を追加
+      td_block_7.setAttribute('hidden', '');
+      td_block_7.innerHTML = `${query.user_id_id}`;
+      // 日付用の<td>にhidden属性を追加
+      td_block_8.setAttribute('hidden', '');
+      td_block_8.innerHTML = `${query.date}`;
+      // WorkモデルID用の<td>にhidden属性を追加
+      td_block_9.setAttribute('hidden', '');
+      td_block_9.innerHTML = `${query.id}`;
+      // <tr>に各テーブルブロックを追加
       tr_block.appendChild(td_block_1);
       tr_block.appendChild(td_block_2);
       tr_block.appendChild(td_block_3);
       tr_block.appendChild(td_block_4);
       tr_block.appendChild(td_block_5);
       tr_block.appendChild(td_block_6);
+      tr_block.appendChild(td_block_7);
+      tr_block.appendChild(td_block_8);
+      tr_block.appendChild(td_block_9);
+      // <table>に<tr>を追加
       table_body.appendChild(tr_block);
     }
   }
   // 定義した関数を実行する
   menu_list();
 });
+
