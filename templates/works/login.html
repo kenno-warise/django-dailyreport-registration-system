@@ -15,28 +15,38 @@
     <!-- Original CSS -->
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 
-    <title>管理者用ログイン | WoRKS</title>
+    <title>ログイン | WoRKS</title>
   </head>
-  <body class="text-center bg-success">
+  <body class="text-center bg-light">
 
     <div>
       <i class="md-4 bi bi-person-workspace" alt="WoRKS"></i>
     </div>
 
-    <form class="border rounded bg-white form-login" method="post" action="{% url 'works:admin-login' %}" novalidate>{% csrf_token %}
+    <form class="border rounded bg-white form-login" method="post" action="{% url 'works:login' %}" novalidate>{% csrf_token %}
       <h1 class="h3 my-3">Login</h1>
-      <div class="mb-3 pt-3">
-	{{ form.username }}
+      {% for field in form %}
+      <div class="md-3 pt-3">
+	{{ field }}
 	<div class="invalid-feedback">
-	{{ form.username.errors.0 }}
+	  {{ field.errors.0 }}
 	</div>
+      </div>
+      {% endfor %}
+      <!--
+      <div class="mb-3 pt-3">
+	{ form.username }}
+	<div class="invalid-feedback">
+	  { form.username.errors.0 }}
+    	</div>
       </div>
       <div class="mb-3">
-	{{ form.password }}
+	{ form.password }}
 	<div class="invalid-feedback">
-	{{ form.password.errors.0 }}
+	{ form.password.errors.0 }}
 	</div>
       </div>
+      -->
       <button type="submit" class="btn btn-primary text-white rounded-pill px-5 my-4">ログイン</button>
       <input type="hidden" name="next" value="{{ next }}">
     </form>
