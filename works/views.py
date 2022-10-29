@@ -16,6 +16,27 @@ class Login(LoginView):
     form_class = LoginForm
     template_name = "works/login.html"
     redirect_authenticated_user = True # ログイン状態で/login/にアクセスされた時にリダイレクト先へ飛ばす
+    
+    def form_invalid(self, form):
+        """検証失敗後の処理"""
+        # 各フィールドのclass属性にis-invalid（失敗）もしくわis-valid（クリア）を追記する
+        auth_result = authenticate(username=form.data['username'], password=form.data['password'])
+        # 管理者かどうかのブール値を出力するための変数
+        user = User.objects.filter(user_no=form.data['username']).values_list('admin')
+        for field in form:
+            if field.errors:
+                # フォームが未入力のフィールド
+                # 入力されていないフィールドはclass属性にis-invalidを追記する
+                form[field.name].field.widget.attrs["class"] += " is-invalid"
+            elif auth_result is None:
+                # 認証に失敗したらinvalid
+                form[field.name].field.widget.attrs["class"] += " is-invalid"
+            elif user.get()[0] is False:
+                # 管理者でなければinvalid
+                form[field.name].field.widget.attrs["class"] += " is-invalid"
+        
+        return self.render_to_response(self.get_context_data(form=form))
+    
 
 
 class Logout(LogoutView):
@@ -48,21 +69,48 @@ def index(request):
         )
     else:
         user_works = None
+    work = get_object_or_404(Work, user_id=request.user.id, date=timezone.now().date().strftime("%Y-%m-%d"))
+    modal_form = WorkForm(instance=work)
+    """
+    エラー処理の実装（モーダル）
+    """
     if request.method == "POST":
         post_data = request.POST
         # 新たにPOSTされたデータを使用して更新用データを取得
-        edit_work = get_object_or_404(
+        work = get_object_or_404(
                 Work,
                 user_id=post_data['user_id'],
                 date=post_data['date']
         )
-        modal_form = WorkForm(request.POST, instance=edit_work)
+        modal_form = WorkForm(request.POST, instance=work)
         if modal_form.is_valid():
-            modal_form.save()
-            return redirect('works:index')
+            if modal_form.initial['start_time']:# 出勤データが既にある場合は退勤フォームをテスト
+                if modal_form.initial['end_time']: # 退勤データが既にある場合は休憩フォームをテスト
+                    if modal_form.data['break_time']: # 休憩フォームに入力されている場合はセーブでリダイレクト
+                        modal_form.save()
+                        return redirect('works:index')
+                    else: # 休憩フォームが未入力だった場合はエラー
+                        modal_form['break_time'].field.widget.attrs["class"] += " is-invalid"
+                else:
+                    if modal_form.data['end_time']: # 退勤フォームが入力されている場合はセーブでリダイレクト
+                        modal_form.save()
+                        return redirect('works:index')
+                    else: # 退勤フォームが未入力だった場合はエラー
+                        modal_form['end_time'].field.widget.attrs["class"] += " is-invalid"
+
+            else: # 出勤データが無かった場合
+                if modal_form.data['start_time']: # 出勤フォームに入力されている場合はセーブでリダイレクト
+                    modal_form.save()
+                    return redirect('works:index')
+                else: # 出勤フォームが入力されていなかった場合エラー
+                    modal_form['start_time'].field.widget.attrs["class"] += " is-invalid"
+        else:
+            for field in modal_form:
+                if field.errors:
+                    # フォームが未入力のフィールド
+                    # 入力されていないフィールドはclass属性にis-invalidを追記する
+                    modal_form[field.name].field.widget.attrs["class"] += " is-invalid"
     
-    work = get_object_or_404(Work, user_id=request.user.id, date=timezone.now().date().strftime("%Y-%m-%d"))
-    modal_form = WorkForm(instance=work)
     context = {
             'user_works': user_works,
             'form': form,
@@ -176,14 +224,21 @@ class AdminLogin(LoginView):
         管理者でなければ無効にする
         """
         form = self.get_form()
-        auth_result = authenticate(username=form.data['username'], password=form.data['password'])
-        user = User.objects.filter(user_no=form.data['username']).values_list('admin')
-        if auth_result: # 認証されれば成功
-            if user.get()[0]: # 管理者かどうか
-                if form.is_valid(): # フォームデータの検証
+        # auth_result = authenticate(username=form.data['username'], password=form.data['password'])
+        # user = User.objects.filter(user_no=form.data['username']).values_list('admin')
+        if form.is_valid(): # フォームの検証
+            auth_result = authenticate(username=form.data['username'], password=form.data['password'])
+            if auth_result: # 認証されれば成功
+                user = User.objects.filter(user_no=form.data['username']).values_list('admin')
+                if user.get()[0]: # 管理者かどうか
                     return self.form_valid(form)
                 else:
+                    # 管理者以外だった場合のエラーメッセージ
+                    form.add_error('username', '認証に失敗しました。')
                     return self.form_invalid(form)
+            else:
+                return self.form_invalid(form)
+
         return self.form_invalid(form)
 
 

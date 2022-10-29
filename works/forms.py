@@ -2,12 +2,17 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 from django.utils import timezone
 
-from .models import Work
+from .models import Work, User
 
 
 class LoginForm(AuthenticationForm):
     """
     既存の認証用フォームを使用して自作フォームを作成
+    メモ：
+    カスタムユーザーフィールドで定義したヘルプテキストや
+    バリデーションエラー等のメッセージがこの継承クラスに
+    反映されていないようなので、時間がある時に公式ドキュメントを
+    見直す。
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -17,15 +22,6 @@ class LoginForm(AuthenticationForm):
         self.fields["password"].widget.attrs["class"] = "form-control rounded-pill"
         self.fields["password"].widget.attrs["placeholder"] = "パスワード"
 
-    class Meta:
-        error_messages = {
-            "username": {
-                "required": "お名前を入力してください",
-            },
-            "password": {
-                "required": "認証に失敗しました",
-            },
-        }
 
 class WorkForm(forms.ModelForm):
     """モーダル用のフォーム"""

@@ -1,5 +1,5 @@
 from django.db import models
-from django.core.validators import MinLengthValidator
+from django.core.validators import MinLengthValidator, RegexValidator
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin
 
@@ -40,6 +40,11 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser):
     """カスタムユーザーモデル"""
+    # RegexValidatorを使用して正規表現でのバリデーションをかける
+    num_regex = RegexValidator(
+            regex=r"\d{4}",
+            message=("4桁の社員番号を入力してください。")
+    )
     user_no = models.CharField(
         verbose_name='社員番号',
         max_length=4,
@@ -48,7 +53,7 @@ class User(AbstractBaseUser):
         error_messages = {
             'unique': '既に使用されている番号です',
         },
-        validators=[MinLengthValidator(4)], # 最低の文字数を検証・設定
+        validators=[MinLengthValidator(4), num_regex], # 最低の文字数を検証・設定
     )
     username_validators = UnicodeUsernameValidator() # ユーザーネームに関する検証
     username = models.CharField(
@@ -94,7 +99,16 @@ class Work(models.Model):
     # models.PROTECTによって関連付けられているUserが削除されてもその関連先オブジェクトが存在する限り削除されない
     user_id = models.ForeignKey(User, verbose_name='社員ID', on_delete=models.PROTECT)
     date = models.DateField(verbose_name='日付')
-    start_time = models.TimeField(verbose_name='出勤時間', null=True, blank=True)
+    num_regex = RegexValidator(
+            regex=r"^([01]?[0-9]|2[0-3]):([0-5][0-9])$",
+            message=("「00:00」の形式で入力してください。")
+    )
+    start_time = models.TimeField(
+            verbose_name='出勤時間',
+            null=True,
+            blank=True,
+            #validators=[num_regex],
+    )
     end_time = models.TimeField(verbose_name='退勤時間', null=True, blank=True)
     break_time = models.TimeField(verbose_name='休憩時間', default='01:00:00', null=True, blank=True)
     comment = models.TextField(verbose_name='業務内容', null=True, blank=True)
