@@ -30,6 +30,7 @@
     <form class="border rounded bg-white form-time-table" action="{% url 'works:index' %}">
       <h1 class="h3 my-3">月別リスト</h1>
 
+      <div id="admin" hidden>{{ request.user.admin }}</div>
       <!--
       <select class="form-select rounded-pill mb-3" aria-label="Default select example">
 	<option selected>2022 / 10</option>
@@ -208,6 +209,7 @@
 	$('#modal_user_id').val(user_id)
 	$('#modal_date').val(target_day)
       })
+
     </script>
 
     

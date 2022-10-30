@@ -1,4 +1,4 @@
-{% load static %}
+{% load static  encryption %}
 <!doctype html>
 <html lang="ja">
   <head>
@@ -41,7 +41,8 @@
 	  {% for user in users %}
 	  <tr>
 	    <th scope="row">{{ user.user_no }}</th>
-	    <td><a href="{% url 'works:user-result' user.id %}">{{ user.username }}</a></td>
+	    <!-- decryptionフィルターでユーザーネームを復号化している -->
+	    <td><a href="{% url 'works:user-result' user.id %}">{{ user.username | decryption }}</a></td>
 	    <td scope="row">{% if user.admin %}管理者{% endif %}</td>
 	  </tr>
 	  {% endfor %}

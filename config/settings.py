@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-t=6nou2ep7#(!4pa0^1_7bste8we7-bzd#k0k6b+d_gzu9%x4l'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True # FalseにするとStaticファイルが読み込まれなくなる（404エラー）
 
 ALLOWED_HOSTS = ['127.0.0.1']
 
