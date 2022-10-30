@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
+from .encryption import decryption
 from .models import User, Work
 
 
@@ -8,7 +9,7 @@ class UserAdmin(BaseUserAdmin):
     
     list_display = (
         "user_no",
-        "username",
+        # "username",
         "active",
         "staff",
         "admin",

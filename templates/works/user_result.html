@@ -30,6 +30,8 @@
     <form class="border rounded bg-white form-time-table" action="{% url 'works:index' %}">
       <h1 class="h3 my-3">月別リスト（{{ work.user_id }}）</h1>
 
+      <div id="admin" hidden>{{ request.user.admin }}</div>
+
       <div class="float-start">
 	{{ form.date_pulldown }}
       </div>

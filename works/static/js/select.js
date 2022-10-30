@@ -15,10 +15,12 @@ const csrftoken = getCookie('csrftoken');
 // ②選択されたセレクトメニュー情報をDjango側にPOST送信してデータを取得する
 // セレクトメニュー内の要素を取得する
 const dateValue = document.getElementById('date_pulldown');
+const adminValue = document.getElementById('admin');
 // セレクトメニューの値が変更された時に実行される処理
 dateValue.addEventListener('change', (event) => {
   // セレクトメニュー内で選択された値の順番を取得する
   const dateValueId = dateValue.selectedIndex;
+  const adminBool = adminValue.textContent;
   // セレクトメニュー内で選択された値のidを取得する
   const selectedDate = dateValue[dateValueId].value;
   // セレクトメニュー内の要素を取得する
@@ -41,6 +43,12 @@ dateValue.addEventListener('change', (event) => {
     let table_body = document.getElementById('table-body');
     // <table>内の要素を空にする
     table_body.innerHTML = '';
+    // 本日以外の編集ボタンを非表示にするための日付要素
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+    const day = now.getDate();
+    // console.log(year+'-'+month+'-'+day)
     for (let query of query_list) {
       // <tr>を作成
       let tr_block = document.createElement('tr');
@@ -62,8 +70,13 @@ dateValue.addEventListener('change', (event) => {
       td_block_3.innerHTML = `${query.end_time}`;
       td_block_4.innerHTML = `${query.break_time}`;
       td_block_5.innerHTML = `${query.comment}`;
-      //let get_data_day = edit_icon.setAttribute('data-day', `${query.date}`);
+      // プルダウンが押された際に、query.dateが本日の日付と同じでない場合は空の要素を挿入し編集できないようにする
+      // もしくは管理者（True）だった場合は編集ボタン表示
+      if (query.date == year+'-'+month+'-'+day || adminBool == 'True') {
       td_block_6.innerHTML = `<button type="button" class="btn btn-default h-auto py-0" data-bs-toggle="modal" data-bs-target="#exampleModal" data-day=${query.date}><i class="fa-solid fa-pencil" id="pencil-icon"></i></button>`;
+      } else {
+	td_block_6.innerHTML = ``;
+      }
       // ユーザーID用の<td>にhidden属性を追加
       td_block_7.setAttribute('hidden', '');
       td_block_7.innerHTML = `${query.user_id_id}`;
