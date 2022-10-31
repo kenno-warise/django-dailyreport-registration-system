@@ -42,21 +42,24 @@ class Login(LoginView):
 class Logout(LogoutView):
     """ログアウト"""
 
+# 一般ユーザーが直接アクセスしてきた際にログイン画面へとリダイレクトされるようにする
 @login_required(login_url='/login/')
 def index(request):
     """
     日報登録＆月別リスト画面
     """
+    # ログインされたユーザーIDを使って現在の日付のクエリを取得
     this_month_check = Work.objects.filter(user_id=request.user.id, date=timezone.now().date())
-    if not this_month_check: # 今月のデータが空だった場合自動で作成する
+    if not this_month_check: # 現在の日付のクエリが空だった場合はその月のデータを一式自動で作成する
         _, lastday = calendar.monthrange(timezone.now().year, timezone.now().month)
         for i in range(lastday):
             t = timezone.now().date().replace(day=1) + timezone.timedelta(days=i)
             Work.objects.create(user_id=User.objects.get(id=request.user.id), date=t.strftime('%Y-%m-%d'))
-    # プルダウン用のフォームだっけかな？
+    
+    # 月の切り替えに使用するプルダウンのフォーム
     form = EveryMonthForm()
 
-    # ログインしないとアクセスできないので次期要らな処理となる
+    # ログインしないとアクセスできないので次期要らない処理となる
     if request.user.id:
         # lastday変数に月末日の生成
         _, lastday = calendar.monthrange(timezone.now().year, timezone.now().month)
@@ -69,12 +72,15 @@ def index(request):
         )
     else:
         user_works = None
+
+    # モーダルの更新用フォームとして使用するクエリ
     work = get_object_or_404(Work, user_id=request.user.id, date=timezone.now().date().strftime("%Y-%m-%d"))
+    # モーダルフォームの作成
     modal_form = WorkForm(instance=work)
-    """
-    エラー処理の実装（モーダル）
-    """
     if request.method == "POST":
+        """
+        モーダルがポストされた時の処理
+        """
         post_data = request.POST
         # 新たにPOSTされたデータを使用して更新用データを取得
         work = get_object_or_404(
@@ -83,8 +89,12 @@ def index(request):
                 date=post_data['date']
         )
         modal_form = WorkForm(request.POST, instance=work)
-        if modal_form.is_valid():
+        if modal_form.is_valid(): # 検証成功した場合
             if modal_form.initial['start_time']:# 出勤データが既にある場合は退勤フォームをテスト
+                """
+                カスタムユーザーを使っているため、バリデーションエラー等の
+                実装のしかたが分からないので各フォームをずつテストをしてエラーを出している
+                """
                 if modal_form.initial['end_time']: # 退勤データが既にある場合は休憩フォームをテスト
                     if modal_form.data['break_time']: # 休憩フォームに入力されている場合はセーブでリダイレクト
                         modal_form.save()
@@ -104,7 +114,7 @@ def index(request):
                     return redirect('works:index')
                 else: # 出勤フォームが入力されていなかった場合エラー
                     modal_form['start_time'].field.widget.attrs["class"] += " is-invalid"
-        else:
+        else: # 検証失敗でフォームが未入力だった場合
             for field in modal_form:
                 if field.errors:
                     # フォームが未入力のフィールド
@@ -263,7 +273,8 @@ def user_result(request, user_id):
         for i in range(lastday):
             t = timezone.now().date().replace(day=1) + timezone.timedelta(days=i)
             Work.objects.create(user_id=User.objects.get(id=user_id), date=t.strftime('%Y-%m-%d'))
-    # プルダウン用のフォーム？
+    
+    # 月で切り替えるためのプルダウンフォーム
     form = EveryMonthForm()
     if request.user.id:
         # リスト表示用のデータ生成
@@ -278,6 +289,9 @@ def user_result(request, user_id):
         )
     else:
         user_works = None
+    
+    work = get_object_or_404(Work, user_id=user_id, date=timezone.now().date().strftime("%Y-%m-%d"))
+    modal_form = WorkForm(instance=work)
     if request.method == "POST":
         post_data = request.POST
         # 新たにPOSTされたデータを使用して更新用データを取得
@@ -291,8 +305,6 @@ def user_result(request, user_id):
             modal_form.save()
             return redirect('works:user-result', user_id)
     
-    work = get_object_or_404(Work, user_id=user_id, date=timezone.now().date().strftime("%Y-%m-%d"))
-    modal_form = WorkForm(instance=work)
     context = {
             'user_works': user_works,
             'form': form,
