@@ -3,7 +3,7 @@ from django.core.validators import MinLengthValidator, RegexValidator
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin
 
-from .encryption import encryption
+from .functions import encryption, decryption
 
 
 class UserManager(BaseUserManager):
@@ -74,8 +74,12 @@ class User(AbstractBaseUser):
     objects = UserManager()
 
     def save(self, **kwargs):
-        """保存する前にユーザーネームの暗号化"""
-        self.username = encryption(self.username)
+        try:
+            """保存する前にユーザーネームの暗号化"""
+            self.username = encryption(self.username)
+        except:
+            # 既に暗号化されている場合は一度復号化してから再度暗号化して保存
+            self.username = encryption(decryption(self.username))
         super(User, self).save(**kwargs)
 
     def __str__(self):             

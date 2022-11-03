@@ -8,6 +8,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 
 from .forms import LoginForm, WorkForm, EveryMonthForm
+from .functions import create_user_works, month_check
 from .models import Work, User
 
 
@@ -35,12 +36,13 @@ class Login(LoginView):
                 # 管理者でなければinvalid
                 form[field.name].field.widget.attrs["class"] += " is-invalid"
         
-        return self.render_to_response(self.get_context_data(form=form))
-    
+        return self.render_to_response(self.get_context_data(form=form))    
 
 
 class Logout(LogoutView):
     """ログアウト"""
+    template_name = 'works/index'
+
 
 # 一般ユーザーが直接アクセスしてきた際にログイン画面へとリダイレクトされるようにする
 @login_required(login_url='/login/')
@@ -48,30 +50,12 @@ def index(request):
     """
     日報登録＆月別リスト画面
     """
-    # ログインされたユーザーIDを使って現在の日付のクエリを取得
-    this_month_check = Work.objects.filter(user_id=request.user.id, date=timezone.now().date())
-    if not this_month_check: # 現在の日付のクエリが空だった場合はその月のデータを一式自動で作成する
-        _, lastday = calendar.monthrange(timezone.now().year, timezone.now().month)
-        for i in range(lastday):
-            t = timezone.now().date().replace(day=1) + timezone.timedelta(days=i)
-            Work.objects.create(user_id=User.objects.get(id=request.user.id), date=t.strftime('%Y-%m-%d'))
     
-    # 月の切り替えに使用するプルダウンのフォーム
-    form = EveryMonthForm()
-
-    # ログインしないとアクセスできないので次期要らない処理となる
-    if request.user.id:
-        # lastday変数に月末日の生成
-        _, lastday = calendar.monthrange(timezone.now().year, timezone.now().month)
-        # 過去から今月末までのデータを取得且つ、今月のみのデータを取得（社員IDを持っている人のみ）
-        user_works = Work.objects.order_by("date").filter(
-                date__lte=timezone.now().date().replace(day=lastday),
-                date__year=form.dates[0][0].split('/')[0],
-                date__month=form.dates[0][0].split('/')[1],
-                user_id=request.user.id
-        )
-    else:
-        user_works = None
+    # 最新の月データが存在するかチェック用の関数
+    month_check(request.user.id)
+    
+    # 当月の勤怠情報を表示するためのデータを取得
+    user_works = create_user_works(request.user.id)
 
     # モーダルの更新用フォームとして使用するクエリ
     work = get_object_or_404(Work, user_id=request.user.id, date=timezone.now().date().strftime("%Y-%m-%d"))
@@ -81,19 +65,21 @@ def index(request):
         """
         モーダルがポストされた時の処理
         """
-        post_data = request.POST
         # 新たにPOSTされたデータを使用して更新用データを取得
         work = get_object_or_404(
                 Work,
-                user_id=post_data['user_id'],
-                date=post_data['date']
+                # データの取得に必要なユーザーID
+                user_id=request.POST['user_id'],
+                # POSTされた日付を割り当てる
+                date=request.POST['date']
         )
         modal_form = WorkForm(request.POST, instance=work)
         if modal_form.is_valid(): # 検証成功した場合
             if modal_form.initial['start_time']:# 出勤データが既にある場合は退勤フォームをテスト
                 """
                 カスタムユーザーを使っているため、バリデーションエラー等の
-                実装のしかたが分からないので各フォームをずつテストをしてエラーを出している
+                エラーメッセージやvalidatoreの実装のしかたが分からないので
+                各フォームを１つずつテストをしてエラーを出している
                 """
                 if modal_form.initial['end_time']: # 退勤データが既にある場合は休憩フォームをテスト
                     if modal_form.data['break_time']: # 休憩フォームに入力されている場合はセーブでリダイレクト
@@ -121,9 +107,12 @@ def index(request):
                     # 入力されていないフィールドはclass属性にis-invalidを追記する
                     modal_form[field.name].field.widget.attrs["class"] += " is-invalid"
     
+    # 月で切り替えるためのプルダウンフォーム
+    pulldown_form = EveryMonthForm()
+
     context = {
             'user_works': user_works,
-            'form': form,
+            'pulldown_form': pulldown_form,
             'modal_form': modal_form,
             'work': work,
     }
@@ -200,6 +189,35 @@ class AdminLogin(LoginView):
     redirect_authenticated_user = True # ログイン状態で/admin-login/にアクセスされた時にリダイレクト先へ飛ばす
     redirect_field_name = 'user-list' # リダイレクトり先が「/admin-login/user-list/」となる
 
+    def get_redirect_url(self):
+        """
+        フォームの認証、検証共に成功した後の処理
+        リダイレクト先の戻り値指定
+        """
+        redirect_to = self.redirect_field_name
+        return redirect_to
+    
+    def post(self, request, *args, **kwargs):
+        """
+        POSTパラメータを押された際の処理
+        管理者でなければ無効にする
+        """
+        form = self.get_form()
+        if form.is_valid(): # フォームの検証
+            auth_result = authenticate(username=form.data['username'], password=form.data['password'])
+            if auth_result: # 認証されれば成功
+                user = User.objects.filter(user_no=form.data['username']).values_list('admin')
+                if user.get()[0]: # 管理者かどうか
+                    return self.form_valid(form)
+                else:
+                    # 管理者以外だった場合のエラーメッセージ
+                    form.add_error('username', '認証に失敗しました。')
+                    return self.form_invalid(form)
+            else: # 認証されなければ失敗
+                return self.form_invalid(form)
+
+        return self.form_invalid(form)
+
     def form_invalid(self, form):
         """検証失敗後の処理"""
         # 各フィールドのclass属性にis-invalid（失敗）もしくわis-valid（クリア）を追記する
@@ -220,37 +238,6 @@ class AdminLogin(LoginView):
         
         return self.render_to_response(self.get_context_data(form=form))
     
-    def get_redirect_url(self):
-        """
-        フォームの認証、検証共に成功した後の処理
-        リダイレクト先の戻り値指定
-        """
-        redirect_to = self.redirect_field_name
-        return redirect_to
-    
-    def post(self, request, *args, **kwargs):
-        """
-        POSTパラメータを押された際の処理
-        管理者でなければ無効にする
-        """
-        form = self.get_form()
-        # auth_result = authenticate(username=form.data['username'], password=form.data['password'])
-        # user = User.objects.filter(user_no=form.data['username']).values_list('admin')
-        if form.is_valid(): # フォームの検証
-            auth_result = authenticate(username=form.data['username'], password=form.data['password'])
-            if auth_result: # 認証されれば成功
-                user = User.objects.filter(user_no=form.data['username']).values_list('admin')
-                if user.get()[0]: # 管理者かどうか
-                    return self.form_valid(form)
-                else:
-                    # 管理者以外だった場合のエラーメッセージ
-                    form.add_error('username', '認証に失敗しました。')
-                    return self.form_invalid(form)
-            else:
-                return self.form_invalid(form)
-
-        return self.form_invalid(form)
-
 
 @login_required(login_url='/admin-login/')
 def user_list(request):
@@ -267,28 +254,12 @@ def user_list(request):
 @login_required(login_url='/admin-login/')
 def user_result(request, user_id):
     """日報登録＆月別リスト"""
-    this_month_check = Work.objects.filter(user_id=user_id, date=timezone.now().date())
-    if not this_month_check: # 今月のデータが空だった場合自動で作成する
-        _, lastday = calendar.monthrange(timezone.now().year, timezone.now().month)
-        for i in range(lastday):
-            t = timezone.now().date().replace(day=1) + timezone.timedelta(days=i)
-            Work.objects.create(user_id=User.objects.get(id=user_id), date=t.strftime('%Y-%m-%d'))
-    
-    # 月で切り替えるためのプルダウンフォーム
-    form = EveryMonthForm()
-    if request.user.id:
-        # リスト表示用のデータ生成
-        # lastday変数に月末日の生成
-        _, lastday = calendar.monthrange(timezone.now().year, timezone.now().month)
-        # 過去から今月末までのデータを取得且つ、今月のみのデータを取得（社員IDを持っている人のみ）
-        user_works = Work.objects.order_by("date").filter(
-                date__lte=timezone.now().date().replace(day=lastday),
-                date__year=form.dates[0][0].split('/')[0],
-                date__month=form.dates[0][0].split('/')[1],
-                user_id=user_id
-        )
-    else:
-        user_works = None
+
+    # 最新の月データが存在するかチェック用の関数
+    month_check(user_id)
+
+    # 当月の勤怠情報を表示するためのデータを取得
+    user_works = create_user_works(user_id)
     
     work = get_object_or_404(Work, user_id=user_id, date=timezone.now().date().strftime("%Y-%m-%d"))
     modal_form = WorkForm(instance=work)
@@ -305,9 +276,12 @@ def user_result(request, user_id):
             modal_form.save()
             return redirect('works:user-result', user_id)
     
+    # 月で切り替えるためのプルダウンフォーム
+    pulldown_form = EveryMonthForm()
+
     context = {
             'user_works': user_works,
-            'form': form,
+            'pulldown_form': pulldown_form,
             'modal_form': modal_form,
             'work': work,
     }
