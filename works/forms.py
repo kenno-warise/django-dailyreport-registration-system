@@ -89,11 +89,15 @@ class EveryMonthForm(forms.Form):
     """
     月別リストのプルダウン用フォーム
     """
+    # 本日までのデータを取得（未来のデータを取得しないため）
     date = Work.objects.order_by("-date").filter(date__lte=timezone.now().date()).values_list("date")
+    # 年/月に変換し保管
     date_list = [d[0].strftime("%Y/%m") for d in date]
-    date_unique = list(sorted(set(date_list), key=date_list.index))
+    # 上記のorder_by("-date")の並び順を固定で、リストのindex番号12番目までを取得（過去１２か月分）
+    date_unique = list(sorted(set(date_list), key=date_list.index))[:12]
+    # choicesに渡すため要素をタプルで囲み一時保管
     date_list_tuple = [(d, d) for d in date_unique]
-
+    # リストからタプルにして準備完了
     dates = tuple(date_list_tuple)
 
     date_pulldown = forms.ChoiceField(
