@@ -5,7 +5,7 @@ from .models import User, Work
 
 
 class UserAdmin(BaseUserAdmin):
-    
+
     list_display = (
         "user_no",
         # "username",
@@ -19,25 +19,36 @@ class UserAdmin(BaseUserAdmin):
     )
     filter_horizontal = ()
     ordering = ("user_no",)
-    search_fields = ('user_no',)
+    search_fields = ("user_no",)
 
     fieldsets = (
-        (None, {'fields': ('user_no', 'username', 'password')}),
-        ('Permissions', {'fields': ('staff','admin',)}),
+        (None, {"fields": ("user_no", "username", "password")}),
+        (
+            "Permissions",
+            {
+                "fields": (
+                    "staff",
+                    "admin",
+                )
+            },
+        ),
     )
 
     add_fieldsets = (
-        (None, {
-            'classes': ('wide',),
-            'fields': ('user_no', 'username', 'password1', 'password2')}
+        (
+            None,
+            {
+                "classes": ("wide",),
+                "fields": ("user_no", "username", "password1", "password2"),
+            },
         ),
     )
 
 
 class WorkAdmin(admin.ModelAdmin):
     list_display = (
-            "user_id",
-            "date",
+        "user_id",
+        "date",
     )
     search_fields = ["user_id"]
 

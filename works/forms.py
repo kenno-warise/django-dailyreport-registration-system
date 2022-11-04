@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 from django.utils import timezone
 
-from .models import Work, User
+from .models import Work
 
 
 class LoginForm(AuthenticationForm):
@@ -14,6 +14,7 @@ class LoginForm(AuthenticationForm):
     反映されていないようなので、時間がある時に公式ドキュメントを
     見直す。
     """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # カスタムユーザーモデルは「user_no」を認証にしているが、ここでは「user_no」が「username」としてキーになっている
@@ -29,59 +30,59 @@ class WorkForm(forms.ModelForm):
     class Meta:
         model = Work
         fields = (
-                'user_id',
-                'date',
-                'start_time',
-                'end_time',
-                'break_time',
-                'comment',
+            "user_id",
+            "date",
+            "start_time",
+            "end_time",
+            "break_time",
+            "comment",
         )
         widgets = {
-                "user_id": forms.NumberInput(
-                    attrs={
-                        "id": "modal_user_id",
-                        "name": "modal_user_id",
-                    }
-                ),
-                "date": forms.TextInput(
-                    attrs={
-                        "id": "modal_date",
-                        "name": "modal_date",
-                    }
-                ),
-                "start_time": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                        "placeholder": "出勤",
-                        "id": "modal_start_time",
-                        "name": "modal_start_time",
-                    }
-                ),
-                "end_time": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                        "placeholder": "退勤",
-                        "id": "modal_end_time",
-                        "name": "modal_end_time",
-                    }
-                ),
-                "break_time": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                        "placeholder": "休憩",
-                        "id": "modal_break_time",
-                        "name": "modal_break_time",
-                    }
-                ),
-                "comment": forms.Textarea(
-                    attrs={
-                        "class": "form-control",
-                        "placeholder": "業務内容",
-                        "id": "modal_comment",
-                        "name": "modal_comment",
-                        "row": "5",
-                    }
-                )
+            "user_id": forms.NumberInput(
+                attrs={
+                    "id": "modal_user_id",
+                    "name": "modal_user_id",
+                }
+            ),
+            "date": forms.TextInput(
+                attrs={
+                    "id": "modal_date",
+                    "name": "modal_date",
+                }
+            ),
+            "start_time": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "出勤",
+                    "id": "modal_start_time",
+                    "name": "modal_start_time",
+                }
+            ),
+            "end_time": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "退勤",
+                    "id": "modal_end_time",
+                    "name": "modal_end_time",
+                }
+            ),
+            "break_time": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "休憩",
+                    "id": "modal_break_time",
+                    "name": "modal_break_time",
+                }
+            ),
+            "comment": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "業務内容",
+                    "id": "modal_comment",
+                    "name": "modal_comment",
+                    "row": "5",
+                }
+            ),
         }
 
 
@@ -89,8 +90,13 @@ class EveryMonthForm(forms.Form):
     """
     月別リストのプルダウン用フォーム
     """
+
     # 本日までのデータを取得（未来のデータを取得しないため）
-    date = Work.objects.order_by("-date").filter(date__lte=timezone.now().date()).values_list("date")
+    date = (
+        Work.objects.order_by("-date")
+        .filter(date__lte=timezone.now().date())
+        .values_list("date")
+    )
     # 年/月に変換し保管
     date_list = [d[0].strftime("%Y/%m") for d in date]
     # 上記のorder_by("-date")の並び順を固定で、リストのindex番号12番目までを取得（過去１２か月分）
@@ -101,8 +107,8 @@ class EveryMonthForm(forms.Form):
     dates = tuple(date_list_tuple)
 
     date_pulldown = forms.ChoiceField(
-            choices=dates,
-            widget=forms.widgets.Select(
-                attrs={"class": "form-select rounded-pill mb-3", "id": "date_pulldown"}
-            ),
+        choices=dates,
+        widget=forms.widgets.Select(
+            attrs={"class": "form-select rounded-pill mb-3", "id": "date_pulldown"}
+        ),
     )
