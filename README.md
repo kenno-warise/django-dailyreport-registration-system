@@ -45,15 +45,21 @@ YouTubeで発信されている徳田啓（トクタ　ケイ）さんによる�
 
 ### 管理者用ログイン画面
 
+![work_admin_login](https://user-images.githubusercontent.com/51676019/200214923-901d022a-3f0a-41aa-8ad6-98d56cd5f139.jpg)
 
+![work_admin_login_error](https://user-images.githubusercontent.com/51676019/200214944-aa552932-2e15-4549-9dca-959ce46b4a92.jpg)
 
 ### 管理者用社員一覧画面
 
-
+![work_admin_userlist](https://user-images.githubusercontent.com/51676019/200215015-df3d6b2c-87b2-4289-8324-2897432cea62.jpg)
 
 ### 管理者用月別リスト画面
 
+![work_admin_userresult](https://user-images.githubusercontent.com/51676019/200215072-b85b7bae-726b-4070-876f-c102bec4b6ca.jpg)
 
+![work_admin_userresult_modal](https://user-images.githubusercontent.com/51676019/200215087-6f5d2501-ed6e-4a61-b712-63e6e117a50f.jpg)
+
+![work_admin_userresult_2](https://user-images.githubusercontent.com/51676019/200215101-25d81a66-909b-455d-89a2-e55b0dca5d21.jpg)
 ...
 
 追加機能として、「月別リスト」の表示でタイムスタンプが押されていない日付もデータベースに保存しておく（日付は保存する
