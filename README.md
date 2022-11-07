@@ -28,9 +28,19 @@ YouTubeで発信されている徳田啓（トクタ　ケイ）さんによる�
 
 ![work_login](https://user-images.githubusercontent.com/51676019/200212822-0def97c7-e374-4f9c-9a7c-8dfe74b26d07.jpg)
 
+![work_login_error](https://user-images.githubusercontent.com/51676019/200213810-01b8b79b-ff9c-45f0-8e45-b41fe66ef0df.jpg)
+
+
 
 ### 社員用月別リスト画面
 
+![work_index_modal](https://user-images.githubusercontent.com/51676019/200213853-8c36d5c1-5db7-453f-9748-a7c4e8574667.jpg)
+
+![work_index_modal_2](https://user-images.githubusercontent.com/51676019/200213884-d69dc0d4-079c-4bb6-8b4f-9dd12ae0f05d.jpg)
+
+![work_index_modal_error](https://user-images.githubusercontent.com/51676019/200213915-3b924d3c-f3c4-4a1b-affd-733c185b2f32.jpg)
+
+![work_index_list](https://user-images.githubusercontent.com/51676019/200213928-30e1aaad-a5e6-4aff-9d84-757b0837a109.jpg)
 
 
 ### 管理者用ログイン画面
